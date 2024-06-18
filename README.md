@@ -1,13 +1,13 @@
 [中文文档](README-ZH.md)
 
-NyxPrinterClient
+PrinterClient
 ==========
 ### 
-The demo for Android Studio has full functionality, such as printing text, printing barcodes, printing qr code, printing pictures and scanning. Please import project by Android Studio to get the detailed instructions for use.
+The demo for Android Studio has full functionality, such as printing text, printing barcodes, printing qr code, printing pictures, LCD and scanning. Please import project by Android Studio to get the detailed instructions for use.
 ###
 
 ## Printer SDK integration
-Nyx Printer is using AIDL integration. About AIDL, please refer to [https://developer.android.com/guide/components/aidl](https://developer.android.com/guide/components/aidl)
+Printer SDK is using AIDL integration. About AIDL, please refer to [https://developer.android.com/guide/components/aidl](https://developer.android.com/guide/components/aidl)
 
 ### Integration file description
 - [net.nyx.printerservice.print.IPrinterService.aidl](app/src/main/aidl/net/nyx/printerservice/print/IPrinterService.aidl) —— the aidl interface for all printer functions
@@ -66,7 +66,7 @@ try {
     ret = printerService.printBarcode("123456789", 300, 160, 1, 1);
     ret = printerService.printQrCode("123456789", 300, 300, 1);
     if (ret == 0) {
-        paperOut();
+        printerService.printEndAutoOut();
     }
 } catch (RemoteException e) {
     e.printStackTrace();
@@ -82,6 +82,75 @@ try {
     int ret = printerService.printText(text, textFormat);
 } catch (RemoteException e) {
     e.printStackTrace();
+}
+```
+
+### Print table
+```
+private void printTable() {
+    singleThreadExecutor.submit(new Runnable() {
+        @Override
+        public void run() {
+            try {
+                int ret;
+                PrintTextFormat formatCenter = new PrintTextFormat();
+                formatCenter.setAli(1);
+                PrintTextFormat formatLeft = new PrintTextFormat();
+                formatLeft.setAli(0);
+                PrintTextFormat[] formats = {formatCenter, formatCenter, formatCenter, formatCenter};
+                PrintTextFormat[] formats2 = {formatLeft, formatCenter, formatCenter, formatCenter};
+                int[] weights = {2, 1, 1, 1};
+                String[] row1 = {"ITEM", "QTY", "PRICE", "TOTAL"};
+                String[] row2 = {"Apple", "1", "2.00", "2.00"};
+                String[] row3 = {"Strawberry", "1", "2.00", "2.00"};
+                String[] row4 = {"Watermelon", "1", "2.00", "2.00"};
+                String[] row5 = {"Orange", "1", "2.00", "2.00"};
+                ret = printerService.printTableText(row1, weights, formats);
+                ret = printerService.printTableText(row2, weights, formats2);
+                ret = printerService.printTableText(row3, weights, formats2);
+                ret = printerService.printTableText(row4, weights, formats2);
+                ret = printerService.printTableText(row5, weights, formats2);
+                showLog("Print table: " + msg(ret));
+                if (ret == 0) {
+                    printerService.printEndAutoOut();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    });
+}
+```
+
+### Print ESC/POS commands
+For details about the common ESC instruction set, please see [ESC/POS Commands](https://download4.epson.biz/sec_pubs/pos/reference_en/escpos/commands.html)
+```
+private void printEscpos() {
+    singleThreadExecutor.submit(new Runnable() {
+        @Override
+        public void run() {
+            try {
+                printerService.printEscposData(new byte[]{0x1b, 0x40});
+                printerService.printEscposData(new byte[]{0x1b, 0x61, 0x01, 0x1b, 0x21, 48});
+                printerService.printEscposData("Receipt\n".getBytes());
+                printerService.printEscposData(new byte[]{0x1b, 0x61, 0x00, 0x1b, 0x21, 0x00});
+                printerService.printEscposData("\n".getBytes());
+                printerService.printEscposData(Utils.printTwoColumn("Order:", System.currentTimeMillis() + ""));
+                printerService.printEscposData(Utils.printTwoColumn("Time:", "2024-12-12 12:12:12"));
+                printerService.printEscposData("--------------------------------".getBytes());
+                printerService.printEscposData(Utils.printTwoColumn("phone", "4999.00"));
+                printerService.printEscposData(Utils.printTwoColumn("laptop", "4999.00"));
+                printerService.printEscposData("--------------------------------".getBytes());
+                printerService.printEscposData(Utils.printTwoColumn("Total:", "9998.00"));
+                printerService.printEscposData(Utils.printTwoColumn("Cash:", "10000.00"));
+                printerService.printEscposData(Utils.printTwoColumn("Change:", "22.00"));
+                printerService.printEscposData(new byte[]{0x1d, 0x56, 0x42, 0x00});
+                showLog("Print ESC/POS cmd: " + msg(0));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    });
 }
 ```
 
@@ -151,6 +220,30 @@ private void printLabelLearning() {
 
 ### Printer result
 All the printer interfaces will return the integer result, please refer to [SdkResult.java](app/src/main/java/net/nyx/printerclient/SdkResult.java)
+
+
+## LCD customer display
+Devices that support the customer display screen can control the LCD. Device without this module will return an error when calling the interface
+
+**The size of the bitmap must be same as the size of the LCD. If the bitmap is smaller than the LCD, it will be shown in the center of LCD**
+```
+private void showLcdBitmap() {
+    singleThreadExecutor.submit(new Runnable() {
+        @Override
+        public void run() {
+            // 240*320 LCD
+            String content = Utils.getRandomStr(100);
+            Bitmap bitmap = Utils.createQRCode(content, 220, 220);
+            try {
+                int ret = printerService.showLcdBitmap(bitmap);
+                showLog("Show LCD bitmap: " + msg(ret));
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+    });
+}
+```
 
 ## Scanner
 ### Camera scanner

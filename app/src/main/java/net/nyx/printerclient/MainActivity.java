@@ -2,6 +2,7 @@ package net.nyx.printerclient;
 
 import android.content.*;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
@@ -38,14 +39,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected Button btn1;
     protected Button btn2;
     protected Button btn3;
+    protected Button btn4;
+    protected Button btn5;
+    protected Button btn6;
+    protected Button btnLbl;
+    protected Button btnLblLearning;
+    protected Button btnLcdBmp;
     protected Button btnScan;
     protected TextView tvLog;
 
     private static final int RC_SCAN = 0x99;
     public static String PRN_TEXT;
-    protected Button btn4;
-    protected Button btnLbl;
-    protected Button btnLblLearning;
 
     private ExecutorService singleThreadExecutor = Executors.newSingleThreadExecutor();
     private Handler handler = new Handler();
@@ -108,12 +112,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             printQrCode();
         } else if (view.getId() == R.id.btn4) {
             printBitmap();
+        } else if (view.getId() == R.id.btn5) {
+            printTable();
+        } else if (view.getId() == R.id.btn6) {
+            printEscpos();
         } else if (view.getId() == R.id.btn_scan) {
             scan();
         } else if (view.getId() == R.id.btn_lbl) {
             printLabel();
         } else if (view.getId() == R.id.btn_lbl_learning) {
             printLabelLearning();
+        } else if (view.getId() == R.id.btn_lcd_bmp) {
+            showLcdBitmap();
         }
     }
 
@@ -181,7 +191,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     int ret = printerService.printText(text, textFormat);
                     showLog("Print text: " + msg(ret));
                     if (ret == 0) {
-                        paperOut();
+                        printerService.printEndAutoOut();
                     }
                 } catch (RemoteException e) {
                     e.printStackTrace();
@@ -198,7 +208,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     int ret = printerService.printBarcode("123456789", 300, 160, 1, 1);
                     showLog("Print text: " + msg(ret));
                     if (ret == 0) {
-                        paperOut();
+                        printerService.printEndAutoOut();
                     }
                 } catch (RemoteException e) {
                     e.printStackTrace();
@@ -215,7 +225,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     int ret = printerService.printQrCode("123456789", 300, 300, 1);
                     showLog("Print barcode: " + msg(ret));
                     if (ret == 0) {
-                        paperOut();
+                        printerService.printEndAutoOut();
                     }
                 } catch (RemoteException e) {
                     e.printStackTrace();
@@ -232,8 +242,70 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     int ret = printerService.printBitmap(BitmapFactory.decodeStream(getAssets().open("bmp.png")), 1, 1);
                     showLog("Print bitmap: " + msg(ret));
                     if (ret == 0) {
-                        paperOut();
+                        printerService.printEndAutoOut();
                     }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    private void printTable() {
+        singleThreadExecutor.submit(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    int ret;
+                    PrintTextFormat formatCenter = new PrintTextFormat();
+                    formatCenter.setAli(1);
+                    PrintTextFormat formatLeft = new PrintTextFormat();
+                    formatLeft.setAli(0);
+                    PrintTextFormat[] formats = {formatCenter, formatCenter, formatCenter, formatCenter};
+                    PrintTextFormat[] formats2 = {formatLeft, formatCenter, formatCenter, formatCenter};
+                    int[] weights = {2, 1, 1, 1};
+                    String[] row1 = {"ITEM", "QTY", "PRICE", "TOTAL"};
+                    String[] row2 = {"Apple", "1", "2.00", "2.00"};
+                    String[] row3 = {"Strawberry", "1", "2.00", "2.00"};
+                    String[] row4 = {"Watermelon", "1", "2.00", "2.00"};
+                    String[] row5 = {"Orange", "1", "2.00", "2.00"};
+                    ret = printerService.printTableText(row1, weights, formats);
+                    ret = printerService.printTableText(row2, weights, formats2);
+                    ret = printerService.printTableText(row3, weights, formats2);
+                    ret = printerService.printTableText(row4, weights, formats2);
+                    ret = printerService.printTableText(row5, weights, formats2);
+                    showLog("Print table: " + msg(ret));
+                    if (ret == 0) {
+                        printerService.printEndAutoOut();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    private void printEscpos() {
+        singleThreadExecutor.submit(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    printerService.printEscposData(new byte[]{0x1b, 0x40});
+                    printerService.printEscposData(new byte[]{0x1b, 0x61, 0x01, 0x1b, 0x21, 48});
+                    printerService.printEscposData("Receipt\n".getBytes());
+                    printerService.printEscposData(new byte[]{0x1b, 0x61, 0x00, 0x1b, 0x21, 0x00});
+                    printerService.printEscposData("\n".getBytes());
+                    printerService.printEscposData(Utils.printTwoColumn("Order:", System.currentTimeMillis() + ""));
+                    printerService.printEscposData(Utils.printTwoColumn("Time:", "2024-12-12 12:12:12"));
+                    printerService.printEscposData("--------------------------------".getBytes());
+                    printerService.printEscposData(Utils.printTwoColumn("phone", "4999.00"));
+                    printerService.printEscposData(Utils.printTwoColumn("laptop", "4999.00"));
+                    printerService.printEscposData("--------------------------------".getBytes());
+                    printerService.printEscposData(Utils.printTwoColumn("Total:", "9998.00"));
+                    printerService.printEscposData(Utils.printTwoColumn("Cash:", "10000.00"));
+                    printerService.printEscposData(Utils.printTwoColumn("Change:", "22.00"));
+                    printerService.printEscposData(new byte[]{0x1d, 0x56, 0x42, 0x00});
+                    showLog("Print ESC/POS cmd: " + msg(0));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -296,9 +368,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
     }
 
+    private void showLcdBitmap() {
+        singleThreadExecutor.submit(new Runnable() {
+            @Override
+            public void run() {
+                String content = Utils.getRandomStr(100);
+                Bitmap bitmap = Utils.createQRCode(content, 220, 220);
+                try {
+                    int ret = printerService.showLcdBitmap(bitmap);
+                    showLog("Show LCD bitmap: " + msg(ret));
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
     private void scan() {
+        // need permission "android.permission.QUERY_ALL_PACKAGES" for android 11 package visible
         if (!existApp("net.nyx.scanner")) {
-            showLog("未安装scanner app");
+            showLog("Scanner app is not installed");
             return;
         }
         Intent intent = new Intent();
@@ -364,15 +453,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btn2.setOnClickListener(MainActivity.this);
         btn3 = (Button) findViewById(R.id.btn3);
         btn3.setOnClickListener(MainActivity.this);
+        btn4 = (Button) findViewById(R.id.btn4);
+        btn4.setOnClickListener(MainActivity.this);
+        btn5 = (Button) findViewById(R.id.btn5);
+        btn5.setOnClickListener(MainActivity.this);
+        btn6 = (Button) findViewById(R.id.btn6);
+        btn6.setOnClickListener(MainActivity.this);
         btnScan = (Button) findViewById(R.id.btn_scan);
         btnScan.setOnClickListener(MainActivity.this);
         tvLog = (TextView) findViewById(R.id.tv_log);
-        btn4 = (Button) findViewById(R.id.btn4);
-        btn4.setOnClickListener(MainActivity.this);
         btnLbl = (Button) findViewById(R.id.btn_lbl);
         btnLbl.setOnClickListener(MainActivity.this);
         btnLblLearning = (Button) findViewById(R.id.btn_lbl_learning);
         btnLblLearning.setOnClickListener(MainActivity.this);
+        btnLcdBmp = (Button) findViewById(R.id.btn_lcd_bmp);
+        btnLcdBmp.setOnClickListener(MainActivity.this);
     }
 
     void showLog(String log, Object... args) {

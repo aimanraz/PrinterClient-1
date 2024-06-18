@@ -7,8 +7,11 @@
     <string name="main_barcode">Print barcode</string>
     <string name="main_qr_code">Print QR code</string>
     <string name="main_pic">Print bitmap</string>
+    <string name="main_table">Print table</string>
+    <string name="main_escpos">Print ESC/POS</string>
     <string name="main_lbl">Print label</string>
     <string name="main_lbl_learning">Label learning print</string>
+    <string name="main_lcd_bitmap">Show LCD bitmap</string>
     <string name="main_scan">Scanner</string>
     <string name="res_not_support">Current printer version is not support</string>
 

@@ -116,4 +116,45 @@ interface IPrinterService {
      */
     int clearLabelLearning();
 
+    /**
+     * Print raster bitmap data
+     *
+     * @param bytes raster bitmap data
+     * @return Result
+     */
+    int printRasterData(in byte[] bytes);
+
+    /**
+     * Print ESC/POS commands
+     *
+     * @param cmd ESC/POS commands
+     * @return Result
+     */
+    int printEscposData(in byte[] cmd);
+
+    /**
+     * Print a row of a table
+     *
+     * @param texts   table row contents
+     * @param weights column width weight
+     * @param formats text format for each column
+     * @return Result
+     */
+    int printTableText(in String[] texts, in int[] weights, in PrintTextFormat[] formats);
+
+    /**
+     * After printing, feed paper to cutting position
+     *
+     * @return Result
+     */
+    int printEndAutoOut();
+
+    /**
+     * Show bitmap in customer display LCD
+     *
+     * @param bitmap Android bitmap object
+     * @return Result
+     */
+    int showLcdBitmap(in Bitmap bitmap);
+
 }

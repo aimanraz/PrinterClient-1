@@ -37,7 +37,6 @@
         android:id="@+id/btn1"
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:layout_marginTop="10dp"
         android:text="@string/main_text"
         />
 
@@ -45,7 +44,6 @@
         android:id="@+id/btn2"
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:layout_marginTop="10dp"
         android:text="@string/main_barcode"
         />
 
@@ -53,7 +51,6 @@
         android:id="@+id/btn3"
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:layout_marginTop="10dp"
         android:text="@string/main_qr_code"
         />
 
@@ -61,15 +58,27 @@
         android:id="@+id/btn4"
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:layout_marginTop="10dp"
         android:text="@string/main_pic"
+        />
+
+    <Button
+        android:id="@+id/btn5"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:text="@string/main_table"
+        />
+
+    <Button
+        android:id="@+id/btn6"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:text="@string/main_escpos"
         />
 
     <Button
         android:id="@+id/btn_lbl"
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:layout_marginTop="10dp"
         android:text="@string/main_lbl"
         />
 
@@ -77,22 +86,27 @@
         android:id="@+id/btn_lbl_learning"
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:layout_marginTop="10dp"
         android:text="@string/main_lbl_learning"
+        />
+
+    <Button
+        android:id="@+id/btn_lcd_bmp"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:text="@string/main_lcd_bitmap"
         />
 
     <Button
         android:id="@+id/btn_scan"
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:layout_marginTop="10dp"
         android:text="@string/main_scan"
         />
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="5dp"
         >
 
         <TextView
