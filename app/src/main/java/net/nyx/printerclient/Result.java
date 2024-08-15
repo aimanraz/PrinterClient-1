@@ -20,6 +20,9 @@ public class Result {
             case SdkResult.SDK_UNKNOWN_ERR:
                 s = Utils.getApp().getString(R.string.result_unknown_err);
                 break;
+            case SdkResult.SDK_FEATURE_NOT_SUPPORT:
+                s = Utils.getApp().getString(R.string.result_feature_not_support);
+                break;
             case SdkResult.DEVICE_NOT_CONNECT:
                 s = Utils.getApp().getString(R.string.result_device_not_conn);
                 break;

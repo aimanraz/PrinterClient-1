@@ -36,6 +36,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static final String TAG = "MainActivity";
     protected Button btnVer;
     protected Button btnPaper;
+    protected Button btnPrint;
     protected Button btn1;
     protected Button btn2;
     protected Button btn3;
@@ -45,6 +46,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected Button btnLbl;
     protected Button btnLblLearning;
     protected Button btnLcdBmp;
+    protected Button btnLcdReset;
+    protected Button btnLcdWakeup;
+    protected Button btnLcdSleep;
+    protected Button btnCashBox;
     protected Button btnScan;
     protected TextView tvLog;
 
@@ -104,6 +109,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             getVersion();
         } else if (view.getId() == R.id.btn_paper) {
             paperOut();
+        } else if (view.getId() == R.id.btn_print) {
+            printTest();
         } else if (view.getId() == R.id.btn1) {
             printText();
         } else if (view.getId() == R.id.btn2) {
@@ -124,6 +131,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             printLabelLearning();
         } else if (view.getId() == R.id.btn_lcd_bmp) {
             showLcdBitmap();
+        } else if (view.getId() == R.id.btn_lcd_reset) {
+            configLcd(4);
+        } else if (view.getId() == R.id.btn_lcd_wakeup) {
+            configLcd(1);
+        } else if (view.getId() == R.id.btn_lcd_sleep) {
+            configLcd(2);
+        } else if (view.getId() == R.id.btn_cash_box) {
+            openCashBox();
         }
     }
 
@@ -170,6 +185,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 try {
                     printerService.paperOut(80);
                 } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    private void printTest() {
+        singleThreadExecutor.submit(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    PrintTextFormat textFormat = new PrintTextFormat();
+                    int ret = printerService.printText(PRN_TEXT, textFormat);
+                    ret = printerService.printBarcode("123456789", 300, 160, 1, 1);
+                    ret = printerService.printQrCode("123456789", 300, 300, 1);
+                    ret = printerService.printBitmap(BitmapFactory.decodeStream(getAssets().open("bmp.png")), 1, 1);
+                    showLog("Print test: " + msg(ret));
+                    if (ret == 0) {
+                        printerService.printEndAutoOut();
+                    }
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
@@ -375,8 +411,44 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 String content = Utils.getRandomStr(100);
                 Bitmap bitmap = Utils.createQRCode(content, 220, 220);
                 try {
-                    int ret = printerService.showLcdBitmap(bitmap);
+                    // init
+                    int ret = printerService.configLcd(0);
+                    if (ret == 0) {
+                        ret = printerService.showLcdBitmap(bitmap);
+                    }
                     showLog("Show LCD bitmap: " + msg(ret));
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    private void configLcd(int opt) {
+        singleThreadExecutor.submit(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    // init
+                    int ret = printerService.configLcd(0);
+                    if (ret == 0) {
+                        ret = printerService.configLcd(opt);
+                    }
+                    showLog("LCD config: " + msg(ret));
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    private void openCashBox() {
+        singleThreadExecutor.submit(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    int ret = printerService.openCashBox();
+                    showLog("Open cash box: " + msg(ret));
                 } catch (RemoteException e) {
                     e.printStackTrace();
                 }
@@ -447,6 +519,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btnVer.setOnClickListener(MainActivity.this);
         btnPaper = (Button) findViewById(R.id.btn_paper);
         btnPaper.setOnClickListener(MainActivity.this);
+        btnPrint = (Button) findViewById(R.id.btn_print);
+        btnPrint.setOnClickListener(MainActivity.this);
         btn1 = (Button) findViewById(R.id.btn1);
         btn1.setOnClickListener(MainActivity.this);
         btn2 = (Button) findViewById(R.id.btn2);
@@ -468,6 +542,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btnLblLearning.setOnClickListener(MainActivity.this);
         btnLcdBmp = (Button) findViewById(R.id.btn_lcd_bmp);
         btnLcdBmp.setOnClickListener(MainActivity.this);
+        btnLcdReset = (Button) findViewById(R.id.btn_lcd_reset);
+        btnLcdReset.setOnClickListener(MainActivity.this);
+        btnLcdWakeup = (Button) findViewById(R.id.btn_lcd_wakeup);
+        btnLcdWakeup.setOnClickListener(MainActivity.this);
+        btnLcdSleep = (Button) findViewById(R.id.btn_lcd_sleep);
+        btnLcdSleep.setOnClickListener(MainActivity.this);
+        btnCashBox = (Button) findViewById(R.id.btn_cash_box);
+        btnCashBox.setOnClickListener(MainActivity.this);
     }
 
     void showLog(String log, Object... args) {

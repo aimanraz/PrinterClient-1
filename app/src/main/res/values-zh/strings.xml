@@ -2,6 +2,7 @@
     <string name="app_name">printer-client</string>
     <string name="main_ver">版本号</string>
     <string name="main_paper_out">走纸</string>
+    <string name="main_test">打印测试</string>
     <string name="main_text">文字</string>
     <string name="main_barcode">条形码</string>
     <string name="main_qr_code">二维码</string>
@@ -10,7 +11,11 @@
     <string name="main_escpos">ESC/POS指令</string>
     <string name="main_lbl">标签</string>
     <string name="main_lbl_learning">标签学习打印</string>
-    <string name="main_lcd_bitmap">客显屏</string>
+    <string name="main_lcd_bitmap">客显屏显示</string>
+    <string name="main_lcd_reset">客显屏还原</string>
+    <string name="main_lcd_wakeup">客显屏唤醒</string>
+    <string name="main_lcd_sleep">客显屏休眠</string>
+    <string name="main_cash_box">打开钱箱</string>
     <string name="main_scan">扫码</string>
     <string name="res_not_support">当前版本不支持</string>
 
@@ -19,6 +24,7 @@
     <string name="result_timeout">通讯超时</string>
     <string name="result_params_err">数据参数错误</string>
     <string name="result_unknown_err">未知异常</string>
+    <string name="result_feature_not_support">功能不支持</string>
     <string name="result_device_not_conn">设备未连接</string>
     <string name="result_device_disconnect">设备断开连接</string>
     <string name="result_conn_err">设备连接错误</string>

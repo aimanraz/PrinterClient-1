@@ -106,17 +106,3 @@
 
 # ============忽略警告，否则打包可能会不成功=============
 -ignorewarnings
-
-
-#-----------------------------三方lib-----------------------------
-# OkHttp3
-#-keepattributes Signature
-#-keepattributes *Annotation*
-#-keep class okhttp3.** { *; }
-#-keep interface okhttp3.** { *; }
-#-dontwarn okhttp3.**
-#-dontwarn okio.**
-#-dontwarn org.conscrypt.**
-
-# nyx-prnter-sdk
--keep class net.nyx.sdk.serialport.SerialPort {*;}

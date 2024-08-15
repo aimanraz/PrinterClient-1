@@ -3,6 +3,7 @@
     <string name="app_name">printer-client</string>
     <string name="main_ver">Version</string>
     <string name="main_paper_out">Paper out</string>
+    <string name="main_test">Print test</string>
     <string name="main_text">Print text</string>
     <string name="main_barcode">Print barcode</string>
     <string name="main_qr_code">Print QR code</string>
@@ -11,7 +12,11 @@
     <string name="main_escpos">Print ESC/POS</string>
     <string name="main_lbl">Print label</string>
     <string name="main_lbl_learning">Label learning print</string>
-    <string name="main_lcd_bitmap">Show LCD bitmap</string>
+    <string name="main_lcd_bitmap">Show LCD</string>
+    <string name="main_lcd_reset">Reset LCD</string>
+    <string name="main_lcd_wakeup">Wakeup LCD</string>
+    <string name="main_lcd_sleep">Sleep LCD</string>
+    <string name="main_cash_box">Open cash box</string>
     <string name="main_scan">Scanner</string>
     <string name="res_not_support">Current printer version is not support</string>
 
@@ -20,6 +25,7 @@
     <string name="result_timeout">communication timeout</string>
     <string name="result_params_err">Params error</string>
     <string name="result_unknown_err">Unknown error</string>
+    <string name="result_feature_not_support">Feature not support</string>
     <string name="result_device_not_conn">Device not connected</string>
     <string name="result_device_disconnect">Device disconnected</string>
     <string name="result_conn_err">Device connect error</string>

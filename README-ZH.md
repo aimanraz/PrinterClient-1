@@ -227,6 +227,64 @@ private void printLabelLearning() {
 ## 客显屏
 支持客显屏的设备可控制显示，无该模块的设备调用接口将会返回错误
 
+### 客显控制
+```
+// @param flag 0--init 1--wakeup LCD 2--sleep LCD 3--clear LCD 4--reset LCD display
+// int configLcd(int flag);
+
+// 唤醒
+singleThreadExecutor.submit(new Runnable() {
+    @Override
+    public void run() {
+        try {
+            // init
+            int ret = printerService.configLcd(0);
+            if (ret == 0) {
+                ret = printerService.configLcd(1);
+            }
+            showLog("LCD config: " + msg(ret));
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+    }
+});
+// 休眠
+singleThreadExecutor.submit(new Runnable() {
+    @Override
+    public void run() {
+        try {
+            // init
+            int ret = printerService.configLcd(0);
+            if (ret == 0) {
+                ret = printerService.configLcd(2);
+            }
+            showLog("LCD config: " + msg(ret));
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+    }
+});
+
+// 还原默认显示
+singleThreadExecutor.submit(new Runnable() {
+    @Override
+    public void run() {
+        try {
+            // init
+            int ret = printerService.configLcd(0);
+            if (ret == 0) {
+                ret = printerService.configLcd(3);
+            }
+            showLog("LCD config: " + msg(ret));
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+    }
+});
+```
+
+### 客显显示
+
 **图片尺寸要与客显屏尺寸一致，小于客显屏的图片将居中显示**
 ```
 private void showLcdBitmap() {
@@ -237,7 +295,11 @@ private void showLcdBitmap() {
             String content = Utils.getRandomStr(100);
             Bitmap bitmap = Utils.createQRCode(content, 220, 220);
             try {
-                int ret = printerService.showLcdBitmap(bitmap);
+                // init
+                int ret = printerService.configLcd(0);
+                if (ret == 0) {
+                    ret = printerService.showLcdBitmap(bitmap);
+                }
                 showLog("Show LCD bitmap: " + msg(ret));
             } catch (RemoteException e) {
                 e.printStackTrace();
@@ -302,6 +364,24 @@ private void registerQscScanReceiver() {
 
 private void unregisterQscReceiver() {
     unregisterReceiver(qscReceiver);
+}
+```
+
+## 钱箱
+仅支持钱箱的设备操作，无该模块的设备调用接口将会返回错误
+```
+private void openCashBox() {
+    singleThreadExecutor.submit(new Runnable() {
+        @Override
+        public void run() {
+            try {
+                int ret = printerService.openCashBox();
+                showLog("Open cash box: " + msg(ret));
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+    });
 }
 ```
 

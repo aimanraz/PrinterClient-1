@@ -3,7 +3,7 @@
 PrinterClient
 ==========
 ### 
-The demo for Android Studio has full functionality, such as printing text, printing barcodes, printing qr code, printing pictures, LCD and scanning. Please import project by Android Studio to get the detailed instructions for use.
+The demo for Android Studio has full functionality, such as printing text, printing barcodes, printing qr code, printing pictures, LCD, cash box and scanning. Please import project by Android Studio to get the detailed instructions for use.
 ###
 
 ## Printer SDK integration
@@ -30,7 +30,7 @@ private ServiceConnection connService = new ServiceConnection() {
     public void onServiceDisconnected(ComponentName name) {
         showLog("printer service disconnected, try reconnect");
         printerService = null;
-        // 尝试重新bind
+        // rebind
         handler.postDelayed(() -> bindService(), 5000);
     }
 
@@ -225,7 +225,67 @@ All the printer interfaces will return the integer result, please refer to [SdkR
 ## LCD customer display
 Devices that support the customer display screen can control the LCD. Device without this module will return an error when calling the interface
 
+### LCD control
+```
+// @param flag 0--init 1--wakeup LCD 2--sleep LCD 3--clear LCD 4--reset LCD display
+// int configLcd(int flag);
+
+// wakup
+singleThreadExecutor.submit(new Runnable() {
+    @Override
+    public void run() {
+        try {
+            // init
+            int ret = printerService.configLcd(0);
+            if (ret == 0) {
+                ret = printerService.configLcd(1);
+            }
+            showLog("LCD config: " + msg(ret));
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+    }
+});
+
+// sleep
+singleThreadExecutor.submit(new Runnable() {
+    @Override
+    public void run() {
+        try {
+            // init
+            int ret = printerService.configLcd(0);
+            if (ret == 0) {
+                ret = printerService.configLcd(2);
+            }
+            showLog("LCD config: " + msg(ret));
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+    }
+});
+
+// reset default display
+singleThreadExecutor.submit(new Runnable() {
+    @Override
+    public void run() {
+        try {
+            // init
+            int ret = printerService.configLcd(0);
+            if (ret == 0) {
+                ret = printerService.configLcd(3);
+            }
+            showLog("LCD config: " + msg(ret));
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+    }
+});
+```
+
+### LCD display
+
 **The size of the bitmap must be same as the size of the LCD. If the bitmap is smaller than the LCD, it will be shown in the center of LCD**
+
 ```
 private void showLcdBitmap() {
     singleThreadExecutor.submit(new Runnable() {
@@ -235,8 +295,11 @@ private void showLcdBitmap() {
             String content = Utils.getRandomStr(100);
             Bitmap bitmap = Utils.createQRCode(content, 220, 220);
             try {
-                int ret = printerService.showLcdBitmap(bitmap);
-                showLog("Show LCD bitmap: " + msg(ret));
+                // init
+                int ret = printerService.configLcd(0);
+                if (ret == 0) {
+                    ret = printerService.showLcdBitmap(bitmap);
+                }
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
@@ -299,6 +362,25 @@ private void registerQscScanReceiver() {
 
 private void unregisterQscReceiver() {
     unregisterReceiver(qscReceiver);
+}
+```
+
+## Cash box
+Devices that support the cash box can open. Device without this module will return an error when calling the interface
+
+```
+private void openCashBox() {
+    singleThreadExecutor.submit(new Runnable() {
+        @Override
+        public void run() {
+            try {
+                int ret = printerService.openCashBox();
+                showLog("Open cash box: " + msg(ret));
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+    });
 }
 ```
 
