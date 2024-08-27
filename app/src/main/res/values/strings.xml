@@ -17,7 +17,8 @@
     <string name="main_lcd_wakeup">Wakeup LCD</string>
     <string name="main_lcd_sleep">Sleep LCD</string>
     <string name="main_cash_box">Open cash box</string>
-    <string name="main_scan">Scanner</string>
+    <string name="main_qsc">Infrared scanner</string>
+    <string name="main_scan">Camera scanner</string>
     <string name="res_not_support">Current printer version is not support</string>
 
     <string name="result_sent_err">Send error</string>

@@ -365,6 +365,23 @@ private void unregisterQscReceiver() {
 }
 ```
 
+By default, infrared scan will be triggered by the side button. Here is the code for soft trigger
+```
+private void infraredScan() {
+    singleThreadExecutor.submit(new Runnable() {
+        @Override
+        public void run() {
+            try {
+                int ret = printerService.triggerQscScan();
+                showLog("Infrared scan: " + msg(ret));
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+    });
+}
+```
+
 ## Cash box
 Devices that support the cash box can open. Device without this module will return an error when calling the interface
 

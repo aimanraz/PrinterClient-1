@@ -50,7 +50,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected Button btnLcdWakeup;
     protected Button btnLcdSleep;
     protected Button btnCashBox;
-    protected Button btnScan;
+    protected Button btnInfraredScan;
+    protected Button btnCameraScan;
     protected TextView tvLog;
 
     private static final int RC_SCAN = 0x99;
@@ -123,8 +124,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             printTable();
         } else if (view.getId() == R.id.btn6) {
             printEscpos();
-        } else if (view.getId() == R.id.btn_scan) {
-            scan();
+        } else if (view.getId() == R.id.btn_infrared_scan) {
+            infraredScan();
+        } else if (view.getId() == R.id.btn_camera_scan) {
+            cameraScan();
         } else if (view.getId() == R.id.btn_lbl) {
             printLabel();
         } else if (view.getId() == R.id.btn_lbl_learning) {
@@ -140,28 +143,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         } else if (view.getId() == R.id.btn_cash_box) {
             openCashBox();
         }
-    }
-
-    private final BroadcastReceiver qscReceiver = new BroadcastReceiver() {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if ("com.android.NYX_QSC_DATA".equals(intent.getAction())) {
-                String qsc = intent.getStringExtra("qsc");
-                showLog("qsc scan result: %s", qsc);
-                printText("qsc-quick-scan-code\n" + qsc);
-            }
-        }
-    };
-
-    private void registerQscScanReceiver() {
-        IntentFilter filter = new IntentFilter();
-        filter.addAction("com.android.NYX_QSC_DATA");
-        registerReceiver(qscReceiver, filter);
-    }
-
-    private void unregisterQscReceiver() {
-        unregisterReceiver(qscReceiver);
     }
 
     private void getVersion() {
@@ -456,7 +437,43 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
     }
 
-    private void scan() {
+    private final BroadcastReceiver qscReceiver = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if ("com.android.NYX_QSC_DATA".equals(intent.getAction())) {
+                String qsc = intent.getStringExtra("qsc");
+                showLog("qsc scan result: %s", qsc);
+                printText("qsc-quick-scan-code\n" + qsc);
+            }
+        }
+    };
+
+    private void registerQscScanReceiver() {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("com.android.NYX_QSC_DATA");
+        registerReceiver(qscReceiver, filter);
+    }
+
+    private void unregisterQscReceiver() {
+        unregisterReceiver(qscReceiver);
+    }
+
+    private void infraredScan() {
+        singleThreadExecutor.submit(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    int ret = printerService.triggerQscScan();
+                    showLog("Infrared scan: " + msg(ret));
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    private void cameraScan() {
         // need permission "android.permission.QUERY_ALL_PACKAGES" for android 11 package visible
         if (!existApp("net.nyx.scanner")) {
             showLog("Scanner app is not installed");
@@ -533,8 +550,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btn5.setOnClickListener(MainActivity.this);
         btn6 = (Button) findViewById(R.id.btn6);
         btn6.setOnClickListener(MainActivity.this);
-        btnScan = (Button) findViewById(R.id.btn_scan);
-        btnScan.setOnClickListener(MainActivity.this);
+        btnInfraredScan = (Button) findViewById(R.id.btn_infrared_scan);
+        btnInfraredScan.setOnClickListener(MainActivity.this);
+        btnCameraScan = (Button) findViewById(R.id.btn_camera_scan);
+        btnCameraScan.setOnClickListener(MainActivity.this);
         tvLog = (TextView) findViewById(R.id.tv_log);
         btnLbl = (Button) findViewById(R.id.btn_lbl);
         btnLbl.setOnClickListener(MainActivity.this);

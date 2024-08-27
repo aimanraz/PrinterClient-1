@@ -174,4 +174,12 @@ interface IPrinterService {
      * @since PrinterService v1.6.1
      */
     int openCashBox();
+
+    /**
+     * Trigger infrared scan
+     *
+     * @return Result
+     * @since PrinterService v1.7.0
+     */
+    int triggerQscScan();
 }

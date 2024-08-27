@@ -367,6 +367,23 @@ private void unregisterQscReceiver() {
 }
 ```
 
+默认情况下红外扫码由侧边实体按键触发，也提供软触发的接口
+```
+private void infraredScan() {
+    singleThreadExecutor.submit(new Runnable() {
+        @Override
+        public void run() {
+            try {
+                int ret = printerService.triggerQscScan();
+                showLog("Infrared scan: " + msg(ret));
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+    });
+}
+```
+
 ## 钱箱
 仅支持钱箱的设备操作，无该模块的设备调用接口将会返回错误
 ```

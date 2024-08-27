@@ -16,7 +16,8 @@
     <string name="main_lcd_wakeup">客显屏唤醒</string>
     <string name="main_lcd_sleep">客显屏休眠</string>
     <string name="main_cash_box">打开钱箱</string>
-    <string name="main_scan">扫码</string>
+    <string name="main_qsc">红外扫码</string>
+    <string name="main_scan">相机扫码</string>
     <string name="res_not_support">当前版本不支持</string>
 
     <string name="result_sent_err">数据发送错误</string>
