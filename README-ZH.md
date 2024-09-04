@@ -309,6 +309,29 @@ private void showLcdBitmap() {
 }
 ```
 
+### 客显默认图片
+```
+private void setLcdLogo() {
+    singleThreadExecutor.submit(new Runnable() {
+        @Override
+        public void run() {
+            String content = Utils.getRandomStr(100);
+            Bitmap bitmap = Utils.createQRCode(content, 220, 220);
+            try {
+                // init
+                int ret = printerService.configLcd(0);
+                if (ret == 0) {
+                    ret = printerService.setLcdLogo(bitmap);
+                }
+                showLog("Show LCD default: " + msg(ret));
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+    });
+}
+```
+
 ## 扫码
 
 ### 摄像头扫描

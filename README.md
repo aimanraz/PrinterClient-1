@@ -308,6 +308,29 @@ private void showLcdBitmap() {
 }
 ```
 
+### LCD default logo
+```
+private void setLcdLogo() {
+    singleThreadExecutor.submit(new Runnable() {
+        @Override
+        public void run() {
+            String content = Utils.getRandomStr(100);
+            Bitmap bitmap = Utils.createQRCode(content, 220, 220);
+            try {
+                // init
+                int ret = printerService.configLcd(0);
+                if (ret == 0) {
+                    ret = printerService.setLcdLogo(bitmap);
+                }
+                showLog("Show LCD default: " + msg(ret));
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+    });
+}
+```
+
 ## Scanner
 ### Camera scanner
 Just start a system activity to get built-in camera scanner. The capture surface cannot be customized.

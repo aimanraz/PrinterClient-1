@@ -183,4 +183,14 @@ interface IPrinterService {
      * @since PrinterService v1.7.0
      */
     int triggerQscScan();
+
+    /**
+     * Set default logo for customer display LCD
+     * It is recommended not to change the logo frequently. The number of modifications is less than 5000 times
+     *
+     * @param bitmap Android bitmap object
+     * @return Result
+     * @since PrinterService v1.7.9
+     */
+    int setLcdLogo(in Bitmap bitmap);
 }
