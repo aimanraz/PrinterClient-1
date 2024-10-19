@@ -7,9 +7,7 @@ buildscript {
         
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.6.0-rc01'
-        // https://github.com/HujiangTechnology/gradle_plugin_android_aspectjx
-        classpath 'com.hujiang.aspectjx:gradle-android-plugin-aspectjx:2.0.10'
+        classpath 'com.android.tools.build:gradle:4.0.0'
     }
 }
 

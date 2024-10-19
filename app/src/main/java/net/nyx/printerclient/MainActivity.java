@@ -16,8 +16,6 @@ import android.widget.Button;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import net.nyx.printerclient.aop.SingleClick;
 import net.nyx.printerservice.print.IPrinterService;
 import net.nyx.printerservice.print.PrintTextFormat;
 import timber.log.Timber;
@@ -31,7 +29,7 @@ import java.util.concurrent.Executors;
 import static net.nyx.printerclient.Result.msg;
 
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends BaseActivity implements View.OnClickListener {
 
     private static final String TAG = "MainActivity";
     protected Button btnVer;
@@ -103,7 +101,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         unbindService(connService);
     }
 
-    @SingleClick
     @Override
     public void onClick(View view) {
         if (view.getId() == R.id.btn_ver) {
@@ -314,10 +311,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     printerService.printEscposData("\n".getBytes());
                     printerService.printEscposData(Utils.printTwoColumn("Order:", System.currentTimeMillis() + ""));
                     printerService.printEscposData(Utils.printTwoColumn("Time:", "2024-12-12 12:12:12"));
-                    printerService.printEscposData("--------------------------------".getBytes());
+                    printerService.printEscposData("--------------------------------\n".getBytes());
                     printerService.printEscposData(Utils.printTwoColumn("phone", "4999.00"));
                     printerService.printEscposData(Utils.printTwoColumn("laptop", "4999.00"));
-                    printerService.printEscposData("--------------------------------".getBytes());
+                    printerService.printEscposData("--------------------------------\n".getBytes());
                     printerService.printEscposData(Utils.printTwoColumn("Total:", "9998.00"));
                     printerService.printEscposData(Utils.printTwoColumn("Cash:", "10000.00"));
                     printerService.printEscposData(Utils.printTwoColumn("Change:", "22.00"));
@@ -386,21 +383,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void showLcdBitmap() {
+        showDialog();
         singleThreadExecutor.submit(new Runnable() {
             @Override
             public void run() {
-                String content = Utils.getRandomStr(100);
-                Bitmap bitmap = Utils.createQRCode(content, 220, 220);
                 try {
                     // init
                     int ret = printerService.configLcd(0);
                     if (ret == 0) {
+                        Bitmap bitmap = BitmapFactory.decodeStream(getAssets().open("bmp.png"));
                         ret = printerService.showLcdBitmap(bitmap);
                     }
                     showLog("Show LCD bitmap: " + msg(ret));
-                } catch (RemoteException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
+                hideDialog();
             }
         });
     }

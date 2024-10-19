@@ -154,7 +154,8 @@ interface IPrinterService {
      *
      * @param bitmap Android bitmap object
      * @return Result
-     * @since PrinterService v1.5.9
+     * @since PrinterService v1.5.9 only support black-white bitmap
+     * @since PrinterService v1.7.6 support colored bitmap
      */
     int showLcdBitmap(in Bitmap bitmap);
 

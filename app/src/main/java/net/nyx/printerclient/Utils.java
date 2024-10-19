@@ -127,6 +127,8 @@ public class Utils {
         tmp = content.getBytes();
         System.arraycopy(tmp, 0, buf, iNum, tmp.length);
 
+        iNum += tmp.length;
+        buf[iNum] = '\n';
         return buf;
     }
 
