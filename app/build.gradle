@@ -1,7 +1,9 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-parcelize'
 
 android {
-    compileSdkVersion 30
+    compileSdkVersion 33
     buildToolsVersion "30.0.3"
 
     defaultConfig {
@@ -10,6 +12,9 @@ android {
         targetSdkVersion 30
         versionCode 1
         versionName "1.0.5"
+
+        // Add namespace to fix deprecation warning
+        namespace "net.nyx.printerclient"
     }
 
     signingConfigs {
@@ -43,37 +48,26 @@ android {
     }
 
     compileOptions {
-        targetCompatibility JavaVersion.VERSION_1_8
         sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = '1.8'
     }
 
     lintOptions {
         disable 'HardcodedText'
         disable 'ContentDescription'
-    }
-
-
-    applicationVariants.all { variant ->
-        if (variant.buildType.name != "debug") {
-            variant.getPackageApplicationProvider().get().outputDirectory = new File(project.rootDir.absolutePath + "/apk")
-        }
-        variant.outputs.all { output ->
-            outputFileName = "${((project.name != "app") ? project.name : rootProject.name)}" +
-                    //"-${variant.productFlavors[0].name}" +
-                    "-${variant.buildType.name}" +
-                    "_v${variant.versionName}" +
-                    "_${new Date().format("yyyy-MM-dd")}" +
-                    ".apk"
-        }
+        abortOnError false
     }
 }
 
 dependencies {
     implementation fileTree(include: ['*.jar', '*.aar'], dir: 'libs')
-    implementation 'androidx.appcompat:appcompat:1.0.2'
-    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
-    // https://github.com/JakeWharton/timber
-    implementation 'com.jakewharton.timber:timber:4.7.1'
-    // https://github.com/zxing/zxing
-    implementation 'com.google.zxing:core:3.2.1'
+    implementation 'androidx.appcompat:appcompat:1.5.1'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    implementation 'com.jakewharton.timber:timber:5.0.1'
+    implementation 'com.google.zxing:core:3.5.1'
 }
