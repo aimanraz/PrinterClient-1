@@ -22,6 +22,11 @@ import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import android.os.Build
+import android.content.pm.PackageInfo
+import androidx.activity.result.contract.ActivityResultContracts
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class MainActivity : BaseActivity(), View.OnClickListener {
 
@@ -141,16 +146,18 @@ class MainActivity : BaseActivity(), View.OnClickListener {
         singleThreadExecutor.submit {
             try {
                 val textFormat = PrintTextFormat()
-                var ret = printerService?.printText(PRN_TEXT, textFormat) ?: return@submit
-                ret = printerService?.printBarcode("123456789", 300, 160, 1, 1) ?: return@submit
-                ret = printerService?.printQrCode("123456789", 300, 300, 1) ?: return@submit
-                ret = printerService?.printBitmap(BitmapFactory.decodeStream(assets.open("bmp.png")), 1, 1) ?: return@submit
-                showLog("Print test: ${Result.msg(ret)}")
-                if (ret == 0) {
-                    printerService?.printEndAutoOut()
-                }
+                printerService?.printText(PRN_TEXT, textFormat) ?: return@submit
+                printerService?.printBarcode("123456789", 300, 160, 1, 1) ?: return@submit
+                printerService?.printQrCode("123456789", 300, 300, 1) ?: return@submit
+                printerService?.printBitmap(BitmapFactory.decodeStream(assets.open("bmp.png")), 1, 1)?.also { ret ->
+                    if (ret == 0) {
+                        printerService?.printEndAutoOut()
+                    }
+                } ?: return@submit
+                showLog("Print test completed successfully")
             } catch (e: Exception) {
                 e.printStackTrace()
+                showLog("Print test failed: ${e.message}")
             }
         }
     }
@@ -221,28 +228,38 @@ class MainActivity : BaseActivity(), View.OnClickListener {
     private fun printTable() {
         singleThreadExecutor.submit {
             try {
-                var ret: Int
-                val formatCenter = PrintTextFormat().apply { ali = 1 }
-                val formatLeft = PrintTextFormat().apply { ali = 0 }
-                val formats = arrayOf(formatCenter, formatCenter, formatCenter, formatCenter)
-                val formats2 = arrayOf(formatLeft, formatCenter, formatCenter, formatCenter)
                 val weights = intArrayOf(2, 1, 1, 1)
-                val row1 = arrayOf("ITEM", "QTY", "PRICE", "TOTAL")
+                val formats = arrayOf(
+                    PrintTextFormat().apply { ali = 0 },
+                    PrintTextFormat().apply { ali = 1 },
+                    PrintTextFormat().apply { ali = 2 },
+                    PrintTextFormat().apply { ali = 2 }
+                )
+                val formats2 = arrayOf(
+                    PrintTextFormat().apply { ali = 0 },
+                    PrintTextFormat().apply { ali = 1 },
+                    PrintTextFormat().apply { ali = 2 },
+                    PrintTextFormat().apply { ali = 2 }
+                )
+                val row1 = arrayOf("Name", "Qty", "Price", "Total")
                 val row2 = arrayOf("Apple", "1", "2.00", "2.00")
-                val row3 = arrayOf("Strawberry", "1", "2.00", "2.00")
+                val row3 = arrayOf("Banana", "2", "1.00", "2.00")
                 val row4 = arrayOf("Watermelon", "1", "2.00", "2.00")
                 val row5 = arrayOf("Orange", "1", "2.00", "2.00")
-                ret = printerService?.printTableText(row1, weights, formats) ?: return@submit
-                ret = printerService?.printTableText(row2, weights, formats2) ?: return@submit
-                ret = printerService?.printTableText(row3, weights, formats2) ?: return@submit
-                ret = printerService?.printTableText(row4, weights, formats2) ?: return@submit
-                ret = printerService?.printTableText(row5, weights, formats2) ?: return@submit
-                showLog("Print table: ${Result.msg(ret)}")
-                if (ret == 0) {
-                    printerService?.printEndAutoOut()
-                }
+
+                printerService?.printTableText(row1, weights, formats) ?: return@submit
+                printerService?.printTableText(row2, weights, formats2) ?: return@submit
+                printerService?.printTableText(row3, weights, formats2) ?: return@submit
+                printerService?.printTableText(row4, weights, formats2) ?: return@submit
+                printerService?.printTableText(row5, weights, formats2)?.also { ret ->
+                    if (ret == 0) {
+                        printerService?.printEndAutoOut()
+                    }
+                } ?: return@submit
+                showLog("Print table completed successfully")
             } catch (e: Exception) {
                 e.printStackTrace()
+                showLog("Print table failed: ${e.message}")
             }
         }
     }
@@ -436,29 +453,34 @@ class MainActivity : BaseActivity(), View.OnClickListener {
             component = ComponentName("net.nyx.scanner", "net.nyx.scanner.ScannerActivity")
             // set the capture activity actionbar title
             putExtra("TITLE", "Scan")
-            // show album icon, default true
-            // putExtra("SHOW_ALBUM", true)
-            // play beep sound when get the scan result, default true
-            // putExtra("PLAY_SOUND", true)
-            // play vibrate when get the scan result, default true
-            // putExtra("PLAY_VIBRATE", true)
         }
-        startActivityForResult(intent, RC_SCAN)
+        scannerLauncher.launch(intent)
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode == RC_SCAN && resultCode == RESULT_OK && data != null) {
-            val result = data.getStringExtra("SCAN_RESULT")
-            showLog("Scanner result: $result")
+    private val scannerLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == RESULT_OK) {
+            val data = result.data
+            val scanResult = data?.getStringExtra("SCAN_RESULT")
+            showLog("Scanner result: $scanResult")
         }
     }
 
     private fun existApp(pkg: String): Boolean {
         return try {
-            packageManager.getPackageInfo(pkg, 0) != null
+            packageManager.getPackageInfoCompat(pkg, PackageManager.PackageInfoFlags.of(0L)) != null
         } catch (e: PackageManager.NameNotFoundException) {
             e.printStackTrace()
             false
+        }
+    }
+
+    // Extension function to handle deprecated getPackageInfo
+    private fun PackageManager.getPackageInfoCompat(packageName: String, flags: PackageManager.PackageInfoFlags): PackageInfo? {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            getPackageInfo(packageName, flags)
+        } else {
+            @Suppress("DEPRECATION")
+            getPackageInfo(packageName, flags.value.toInt())
         }
     }
 

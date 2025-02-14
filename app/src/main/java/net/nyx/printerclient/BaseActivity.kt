@@ -1,14 +1,15 @@
 package net.nyx.printerclient
 
-import android.app.ProgressDialog
 import android.os.Handler
 import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import androidx.appcompat.app.AlertDialog
 
 abstract class BaseActivity : AppCompatActivity() {
 
     protected val handler = Handler(Looper.getMainLooper())
-    private var mDialog: ProgressDialog? = null
+    private var mDialog: AlertDialog? = null
 
     fun showDialog() {
         if (isFinishing || isDestroyed) {
@@ -21,11 +22,10 @@ abstract class BaseActivity : AppCompatActivity() {
             }
 
             if (mDialog == null) {
-                mDialog = ProgressDialog(this).apply {
-                    setMessage("loading...")
-                    isIndeterminate = false
-                    setCancelable(false)
-                }
+                mDialog = MaterialAlertDialogBuilder(this)
+                    .setMessage("loading...")
+                    .setCancelable(false)
+                    .create()
             }
             mDialog?.takeIf { !it.isShowing }?.show()
         }

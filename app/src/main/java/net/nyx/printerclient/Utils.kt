@@ -103,7 +103,7 @@ object Utils {
         System.arraycopy(tmp, 0, buf, iNum, tmp.size)
 
         iNum += tmp.size
-        buf[iNum] = '\n'.toByte()
+        buf[iNum] = '\n'.code.toByte()
         return buf
     }
 
